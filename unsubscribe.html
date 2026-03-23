@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>unsubscribe</title>
+</head>
+<body style="text-align:center; font-family:sans-serif; padding:50px;">
+  <h2>Unsubscribing...</h2>
+  <div id="message">Please wait.</div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    if (!id) {
+      document.getElementById('message').innerText = 'Invalid unsubscribe link.';
+    } else {
+      fetch(`/api/unsubscribe?id=${id}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('message').innerText = 'You have been unsubscribed.';
+          } else {
+            document.getElementById('message').innerText = 'Error: ' + data.error;
+          }
+        })
+        .catch(err => {
+          document.getElementById('message').innerText = 'Error: ' + err.message;
+        });
+    }
+  </script>
+</body>
+</html>
