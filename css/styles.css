@@ -1,0 +1,83 @@
+body {
+  margin: 0;
+  background: white;
+  font-family: sans-serif;
+}
+
+#grid {
+  column-count: 5;
+  column-gap: 6px;
+  padding: 6px;
+}
+
+@media (max-width: 768px) {
+  #grid {
+    column-count: 3;
+  }
+}
+
+.block {
+  break-inside: avoid;
+  margin-bottom: 6px;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  overflow: hidden;
+  border: 1px solid black;
+  transform-origin: center center;
+}
+
+.block:hover {
+  transform: scale(1.2);
+  z-index: 10;
+  filter: brightness(100%);
+}
+
+.block img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.block::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 26, 255, 0);
+  pointer-events: none;
+  transition: background-color 0.2s ease;
+}
+
+.block:hover::after,
+.block.active::after {
+  background-color: rgba(0, 26, 255, 0);
+}
+
+.caption {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  background-color: rgba(0, 26, 255, 0.81);
+  padding: 6px 10px;
+
+  font-size: 10px;
+  color: rgb(255, 255, 255);
+  text-align: center;
+
+  max-width: 80%;
+
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+
+  pointer-events: none;
+  z-index: 2;
+}
+
+.block:hover .caption,
+.block.active .caption {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Upload</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+
+    #dropZone {
+      border: 2px dashed #ccc;
+      padding: 50px;
+      text-align: center;
+      margin-bottom: 20px;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    #dropZone.active {
+      border-color: black;
+    }
+
+    input, button {
+      font-size: 14px;
+      padding: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Admin Login</h2>
+<input type="email" id="email" placeholder="Enter your email" />
+<button id="sendLink">Send Magic Link</button>
+<p id="status">Not logged in</p>
+
+<hr>
+
+<h2>Upload Images</h2>
+
+<div id="dropZone">
+  Drag & drop images or folders here<br><br>
+  or click to select
+</div>
+
+<input 
+  type="file" 
+  id="fileInput" 
+  accept="image/*" 
+  multiple 
+  webkitdirectory 
+  style="display:none;"
+/>
+
+<input type="text" id="link" placeholder="Optional link URL" />
+<br><br>
+
+<input type="text" id="caption" placeholder="Caption" />
+<br><br>
+
+<button id="submit">Upload</button>
+
+<button id="generateDigest">Generate Digest</button><br><br>
+<textarea id="digestOutput" style="width:100%; height:300px;"></textarea>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const SUPABASE_URL = 'https://kswlrqgosdplbhvpypbj.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzd2xycWdvc2RwbGJodnB5cGJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NTk5MjIsImV4cCI6MjA4OTUzNTkyMn0.xnxegzDY-vrfiTioaPrsuiQWzq8kM6lZG6WU7UxLI2Y';
+const ADMIN_USER_ID = '2a08cc42-0f5e-4cbf-8255-ac432b64204f';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+
+// --- LOGIN ---
+document.getElementById('sendLink').onclick = async () => {
+  const email = document.getElementById('email').value;
+  if (!email) return alert("Enter your email");
+
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.href }
+  });
+
+  if (error) return alert(error.message);
+
+  document.getElementById('status').innerText = "Magic link sent.";
+};
+
+// --- CHECK USER ---
+const checkUser = async () => {
+  const { data } = await supabase.auth.getUser();
+
+  if (!data.user) {
+    document.getElementById('status').innerText = "Not logged in";
+    return;
+  }
+
+  if (data.user.id !== ADMIN_USER_ID) {
+    document.getElementById('status').innerText = "Not authorized";
+    alert('You are not the admin.');
+    return;
+  }
+
+  currentUser = data.user;
+  document.getElementById('status').innerText = `Logged in as ${currentUser.email}`;
+};
+
+checkUser();
+
+// --- FILE HANDLING ---
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+// click to select
+dropZone.onclick = () => fileInput.click();
+
+// drag over
+dropZone.ondragover = (e) => {
+  e.preventDefault();
+  dropZone.classList.add('active');
+};
+
+// drag leave
+dropZone.ondragleave = () => {
+  dropZone.classList.remove('active');
+};
+
+// drop
+dropZone.ondrop = (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('active');
+  fileInput.files = e.dataTransfer.files;
+};
+
+// --- CLEAN FILENAME ---
+const cleanFileName = (name) =>
+  name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9.\-]/g, '');
+
+// --- UPLOAD ---
+document.getElementById('submit').onclick = async () => {
+  if (!currentUser) return alert('You must be logged in');
+
+  const files = fileInput.files;
+  const link = document.getElementById('link').value;
+  const caption = document.getElementById('caption').value;
+
+  if (!files.length) return alert('No files selected');
+
+  for (const file of files) {
+    // skip non-images
+    if (!file.type.startsWith('image/')) continue;
+
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}-${cleanFileName(file.name)}`;
+
+    // upload
+    const { error: uploadError } = await supabase
+      .storage
+      .from('media')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      console.error(uploadError);
+      continue;
+    }
+
+    // get URL
+    const mediaUrl = supabase
+      .storage
+      .from('media')
+      .getPublicUrl(fileName).data.publicUrl;
+
+    // insert row
+    const { error: insertError } = await supabase
+      .from('blocks')
+      .insert([{
+        media_url: mediaUrl,
+        link_url: link || null,
+        caption: caption || null
+      }]);
+
+    if (insertError) {
+      console.error(insertError);
+      continue;
+    }
+  }
+
+  alert('Upload complete!');
+  fileInput.value = '';
+};
+
+document.getElementById('generateDigest').onclick = async () => {
+  const { data: blocks, error } = await supabase
+    .from('blocks')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  if (error) {
+    alert('Error fetching blocks');
+    return;
+  }
+
+  const html = blocks.map(b => `
+    <div style="margin-bottom:20px;">
+      <img src="${b.media_url}" style="width:100%;" />
+      <p>${b.caption || ''}</p>
+    </div>
+  `).join('');
+
+  document.getElementById('digestOutput').value = html;
+};
+</script>
+
+</body>
+</html>
