@@ -1,2 +1,6 @@
 [functions]
   directory = "netlify/functions"
+
+[[scheduled-functions]]
+  path = "weekly-digest"
+  schedule = "0 20 * * 5"

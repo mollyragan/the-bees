@@ -73,17 +73,16 @@ form.onsubmit = async (e) => {
   }
 
     try {
-    await fetch('/.netlify/functions/send-email', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email })
-    });
-  } catch (err) {
-    console.error('EMAIL ERROR:', err);
-    // optional: don't block signup if email fails
-  }
+      await fetch('/.netlify/functions/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      });
+    } catch (err) {
+      console.error('EMAIL ERROR:', err);
+    }
 
   document.getElementById('signupMessage').innerText = "Subscribed!";
   form.reset();
