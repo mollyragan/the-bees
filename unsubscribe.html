@@ -2,44 +2,60 @@
 <html>
 <head>
   <title>unsubscribe</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding-top: 50px; /* small offset from top */
+      background-color: #f9f9f9;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #status {
+      font-size: 1.1rem;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
   <h1>unsubscribing...</h1>
   <p id="status">please wait</p>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id');
-    const statusEl = document.getElementById('status');
+ <script>
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  const statusEl = document.getElementById('status');
 
-    if (!id) {
-      statusEl.innerText = 'Invalid unsubscribe link.';
-    } else {
-      fetch('https://kswlrqgosdplbhvpypbj.supabase.co/rest/v1/subscribers?id=eq.' + id + '&select=*', {
-        method: 'PATCH',
-        headers: {
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzd2xycWdvc2RwbGJodnB5cGJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NTk5MjIsImV4cCI6MjA4OTUzNTkyMn0.xnxegzDY-vrfiTioaPrsuiQWzq8kM6lZG6WU7UxLI2Y',        // replace with anon/public key
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzd2xycWdvc2RwbGJodnB5cGJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NTk5MjIsImV4cCI6MjA4OTUzNTkyMn0.xnxegzDY-vrfiTioaPrsuiQWzq8kM6lZG6WU7UxLI2Y',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ is_active: false })
-      })
-      .then(res => {
-        if (!res.ok) throw new Error('failed to unsubscribe.');
-        return res.json(); // now it will return JSON
-      })
-      .then(data => {
-        if (data && data.length > 0) {
-          statusEl.innerText = `you have unsubscribed successfully (${data[0].email}).`;
-        } else {
-          statusEl.innerText = 'you were already unsubscribed or could not be found.';
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        statusEl.innerText = 'Error: ' + err.message;
-      });
-    }
-  </script>
+  if (!id) {
+    statusEl.innerText = 'invalid link';
+  } else {
+    fetch('https://kswlrqgosdplbhvpypbj.supabase.co/rest/v1/subscribers?id=eq.' + id, {
+      method: 'PATCH',
+      headers: {
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzd2xycWdvc2RwbGJodnB5cGJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NTk5MjIsImV4cCI6MjA4OTUzNTkyMn0.xnxegzDY-vrfiTioaPrsuiQWzq8kM6lZG6WU7UxLI2Y',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzd2xycWdvc2RwbGJodnB5cGJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NTk5MjIsImV4cCI6MjA4OTUzNTkyMn0.xnxegzDY-vrfiTioaPrsuiQWzq8kM6lZG6WU7UxLI2Y',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ is_active: false })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('failed to unsubscribe');
+      statusEl.innerText = 'unsubscribe successful. you will no longer receive weekly bees';
+    })
+    .catch(err => {
+      console.error(err);
+      statusEl.innerText = 'Error: ' + err.message;
+    });
+  }
+</script>
 </body>
 </html>
