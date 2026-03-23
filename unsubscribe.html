@@ -15,7 +15,7 @@
     if (!id) {
       statusEl.innerText = 'Invalid unsubscribe link.';
     } else {
-      fetch('https://kswlrqgosdplbhvpypbj.supabase.co/rest/v1/subscribers?id=eq.' + id, {
+      fetch('https://kswlrqgosdplbhvpypbj.supabase.co/rest/v1/subscribers?id=eq.' + id + '&select=*', {
         method: 'PATCH',
         headers: {
           'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzd2xycWdvc2RwbGJodnB5cGJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NTk5MjIsImV4cCI6MjA4OTUzNTkyMn0.xnxegzDY-vrfiTioaPrsuiQWzq8kM6lZG6WU7UxLI2Y',        // replace with anon/public key
