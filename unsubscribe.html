@@ -16,18 +16,18 @@
       text-align: center;
     }
 
-    h1 {
+    h2 {
       margin-bottom: 10px;
     }
 
     #status {
-      font-size: 1.1rem;
+      font-size: 15px;
       color: #333;
     }
   </style>
 </head>
 <body>
-  <h1>unsubscribing...</h1>
+  <h2>unsubscribing...</h2>
   <p id="status">please wait</p>
 
  <script>
@@ -49,8 +49,7 @@
     })
     .then(res => {
       if (!res.ok) throw new Error('failed to unsubscribe');
-      statusEl.innerText = 'unsubscribe successful. you will no longer receive weekly bees';
-    })
+statusEl.innerHTML = 'unsubscribe successful<br>you will no longer receive <a href="https://beesbeesbees.netlify.app/">the bees</a>.';    })
     .catch(err => {
       console.error(err);
       statusEl.innerText = 'Error: ' + err.message;
