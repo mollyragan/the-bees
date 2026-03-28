@@ -79,7 +79,7 @@ for (const sub of activeSubscribers) {
         .join('')}
       </div>
       <p style="margin-top: 0px; text-align: center;">
-    ~mbr~ <hr>
+    <i>~mbr~</i> <hr>
     <a href="https://beesbeesbees.netlify.app/" target="_blank" style="color:#1a73e8; text-decoration:none;">
       all bees </a><br>
       <a href="https://beesbeesbees.netlify.app/unsubscribe.html?id=${sub.id}">unsubscribe</a>

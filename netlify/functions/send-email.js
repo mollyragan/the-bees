@@ -13,7 +13,7 @@ export async function handler(event) {
       from: 'onboarding@resend.dev',
       to: email,
       subject: 'Welcome',
-      html: '<p>You’re in.</p>',
+      html: "<p>You’re in.</p>",
     });
 
     return {

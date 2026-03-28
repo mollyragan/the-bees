@@ -1,36 +1,44 @@
 body {
   margin: 0;
-  background: white;
+  background: rgb(255, 255, 255);
   font-family: sans-serif;
 }
 
 #grid {
   column-count: 5;
-  column-gap: 6px;
-  padding: 6px;
+  column-gap: 4px;
+  padding: 4px;
 }
 
 @media (max-width: 768px) {
   #grid {
-    column-count: 3;
+    column-count: 2;
   }
 }
 
 .block {
   break-inside: avoid;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   position: relative;
   cursor: pointer;
   transition: transform 0.2s ease;
   overflow: hidden;
-  border: 1px solid black;
+  border: 1px solid rgba(0, 0, 0, 0.383);
+  border-radius: 2px;
   transform-origin: center center;
 }
 
 .block:hover {
-  transform: scale(1.2);
+  transform: scale(1.1);
   z-index: 10;
   filter: brightness(100%);
+}
+
+@media (max-width: 768px) {
+  .block:hover,
+  .block.active {
+    transform: none;
+  }
 }
 
 .block img {
@@ -49,10 +57,6 @@ body {
   transition: background-color 0.2s ease;
 }
 
-.block:hover::after,
-.block.active::after {
-  background-color: rgba(0, 26, 255, 0);
-}
 
 .caption {
   position: absolute;
@@ -60,24 +64,349 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
 
-  background-color: rgba(0, 26, 255, 0.81);
-  padding: 6px 10px;
+  background-color: rgba(17, 0, 255, 0);
 
   font-size: 10px;
-  color: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
+  align-content: center;
   text-align: center;
-
-  max-width: 80%;
-
+  width: 100%;
+  height: 100%;
+  padding-left: 10px;
+  padding-top: 10px;
   opacity: 0;
   transition: opacity 0.2s ease, transform 0.2s ease;
 
   pointer-events: none;
   z-index: 2;
+  display: none;
 }
 
-.block:hover .caption,
-.block.active .caption {
+/* ---------- MODAL ---------- */
+
+#modal.hidden {
+  display: none;
+}
+
+#modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2000;
+}
+
+/* darken background */
+#modalOverlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7); /* light wash */
+  backdrop-filter: blur(2px);
+}
+
+/* centered box */
+#modalContent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 90%;
+  max-width: 500px;
+  max-height: 85%;
+
+  background: rgba(255, 255, 255, 0);
+  padding: 0px;
+  box-sizing: border-box;
+
+  overflow: visible;   /* <-- KEY: one scroll container */
+  display: flex;
+  flex-direction: column; /* image on top, caption below */
+  align-items: center;    /* center image horizontally */
+}
+
+#modalImageWrapper {
+  display: flex;               /* normal flex */
+  justify-content: center;     /* center horizontally */
+  align-items: center;         /* center vertically if needed */
+  width: fit-content;          /* shrink to fit image */
+  margin: 0 auto;              /* center wrapper inside modalContent */
+  border: 1px solid rgba(0, 0, 0, 0.383);
+  max-width: 100%;             /* never exceed modalContent width */
+  position: relative;
+  overflow: visible;
+  transition: transform 0.2s ease; /* smooth scaling */
+  transform-origin: center center;
+
+}
+
+#modalImageWrapper:hover{
+  transform: scale(1.05);
+}
+
+/* image */
+#modalImage {
+  max-height: 60vh;   /* <-- key */
+  width: auto;        /* prevent stretching */
+  max-width: 100%;    /* still responsive */
+  height: auto;
+  margin: 0 auto;     /* center horizontally */
+  display: block;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  transform-origin: center center;
+}
+
+/* caption */
+#modalCaption {
+  font-size: 15px;
+  line-height: 1.4;
+  margin-top: 10px;
+  text-align: center;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+/* MODAL ARROWS */
+.modal-arrow {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: rgb(0, 0, 0);
+  cursor: pointer;
+  z-index: 3000;
+  user-select: none;
+  font-weight: normal;
+  transition: font-size 0.2s ease, font-weight 0.2s ease, color 0.2s ease;
+  -webkit-tap-highlight-color: transparent; 
+  padding-top: 20px;
+  padding-bottom: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-arrow:hover,
+.modal-arrow:active {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+#modalArrowLeft {
+  left: 10px;
+}
+
+#modalArrowRight {
+  right: 10px;
+}
+
+/* hide arrows initially */
+.modal-arrow.hidden {
+  display: none;
+}
+
+/* Modal content responsive on mobile */
+@media (max-width: 768px) {
+  #modalContent {
+    width: calc(100% - 100px); /* leave 40px on each side for arrows */
+    max-width: calc(500px - 80px); /* optional: keep your desktop max-width minus arrow space */
+    max-height: 80%;           /* slightly smaller than viewport to leave breathing room */
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #modalImageWrapper {
+    max-width: 100%;           /* shrink wrapper to fit new modalContent width */
+    margin: 0 auto;
+  }
+
+  #modalImage {
+    max-width: 100%;
+    width: auto;
+    max-height: 60vh;
+    margin: 0 auto;
+  }
+
+  #modalImageWrapper:hover {
+    transform: none;
+  }
+
+  .modal-arrow:hover {
+    font-weight: normal;
+  }
+}
+
+/* Footer bar that matches your current signup style */
+#footer {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  padding-left: 5px;
+  width: 100%;
+  height: 50px;
+  background: white;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  border-top: 1px solid rgb(0, 0, 0);
+  z-index: 1000;
+}
+
+/* Form wrapper */
+#signupWrapper {
+  display: flex;
+  align-items: center;  /* vertically center inside footer */
+  position: relative;
+}
+
+/* Signup form - smooth unroll */
+#signupForm {
+  display: flex;
+  overflow: hidden;
+  max-width: 0;                   /* start collapsed */
+  transition: max-width 0.5s cubic-bezier(0.4, 0, 0.2, 1); /* smooth easing */
+  margin-left: 8px;               /* space from button */
+}
+
+/* Input field inside the form */
+#signupForm input[type="email"] {
+  padding-bottom: 2px;
+  border: none;              
+  outline: none;
+  font-size: 14px;
+  width: 200px;                    /* full width when expanded */
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+ #signupForm input[type="email"] {
+  font-size: 16px;
+ }
+}
+
+/* Expand the form when wrapper is active */
+#signupWrapper.active #signupForm {
+  max-width: 200px;               /* smooth expansion */
+}
+
+/* Signup message fade/slide out */
+#signupMessage {
+  position: relative;
+  left: auto;
+  margin-left: 10px;
+  font-size: 14px;
+  color: rgb(255, 0, 0);
+  opacity: 0;
+  transform: translateY(0);          /* slide slightly if desired */
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  display: flex;
+  align-items: center;               /* vertical center */
+}
+
+#signupWrapper.showMessage #signupMessage {
   opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
+  transform: translateY(0);          /* reset if you want a small slide in effect */
+}
+
+/* Subscribe button base */
+#subscribeButton {
+  all: unset;
+  font-size: 14px;
+  padding-left: 10px;
+  color: black;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  height: 100%;
+  
+  /* simulate bold fade */
+  font-weight: normal;                /* normal */
+  transform: scale(1);             /* normal scale */
+  transition: transform 0.3s ease, font-weight 0.3s ease;
+}
+
+/* Hover + active (bold) */
+#subscribeButton:hover,
+#subscribeButton.active {
+  font-weight: bold;                 /* “bold” weight */
+  transform: scale(1.05);           /* subtle scale to emphasize */
+}
+
+/* Mobile signup modal (hidden by default) */
+#mobileSignupModal.hidden {
+  display: none;
+}
+
+#mobileSignupModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3000;
+}
+
+#mobileSignupOverlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(2px);
+}
+
+#mobileSignupContent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  max-width: 400px;
+  background: white;
+  padding: 0px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 0px;
+  border: 1px solid rgba(0, 0, 0, 0.383);
+}
+
+/* Form inside modal */
+#mobileSignupForm {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#mobileSignupForm input[type="email"] {
+  font-size: 16px;
+  padding: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Message */
+#mobileSignupMessage {
+  display: none;
+  margin-top: 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Only apply on mobile */
+@media (min-width: 769px) {
+  #mobileSignupModal {
+    display: none !important;
+  }
 }

@@ -49,7 +49,7 @@
     })
     .then(res => {
       if (!res.ok) throw new Error('failed to unsubscribe');
-statusEl.innerHTML = 'unsubscribe successful<br>you will no longer receive <a href="https://beesbeesbees.netlify.app/">the bees</a>.';    })
+statusEl.innerHTML = 'unsubscribe successful<br>you will no longer receive <a href="https://beesbeesbees.netlify.app/">the bees</a>';    })
     .catch(err => {
       console.error(err);
       statusEl.innerText = 'Error: ' + err.message;

@@ -1,18 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/styles.css">
   <script type="module" src="js/app.js"></script>
 </head>
+
 <body>
 
 <div id="grid"></div>
 
-<form id="signupForm">
-  <input type="email" id="signupEmail" placeholder="Your email" required />
-  <button type="submit">Subscribe</button>
-</form>
+<div id="footer">
+  <div id="signupWrapper">
+    <button type="button" id="subscribeButton">subscribe</button>
+    <form id="signupForm">
+      <input type="email" id="signupEmail" placeholder="type email + hit enter" required />
+    </form>
+    <p id="signupMessage"></p>
+  </div>
+</div>
 
-<p id="signupMessage"></p>
+<div id="mobileSignupModal" class="hidden">
+  <div id="mobileSignupOverlay"></div>
+  <div id="mobileSignupContent">
+    <form id="mobileSignupForm">
+      <input type="email" id="mobileSignupEmail" placeholder="Type email + hit enter" required />
+    </form>
+    <p id="mobileSignupMessage"></p>
+  </div>
+</div>
+
+<div id="modal" class="hidden">
+  <div id="modalOverlay"></div>
+
+  <div id="modalContent">
+    <div id="modalImageWrapper">
+      <img id="modalImage" />
+    </div>
+    <div id="modalCaption"></div>
+  </div>
+</div>
+
+<div id="modalArrowLeft" class="modal-arrow hidden"><<</div>
+<div id="modalArrowRight" class="modal-arrow hidden">>></div>
+
 </body>
 </html>
